@@ -12,11 +12,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 public class Runner {
 
     static final ClassLoader LOADER = Runner.class.getClassLoader();
-    static final Integer NUM_OF_ITERATIONS = 10000;
+    static final Integer NUM_OF_ITERATIONS = 25000;
     // initialize your algorithm
     static double TOUR_MUTATION_PROBABILITY = 0.9;
     static double PACK_PLAN_MUTATION_PROBABILITY = 0.9;
@@ -112,7 +113,12 @@ public class Runner {
 
             // print to console
             System.out.println(ttprun.resultLine);
-
+            System.out.println(ttprun.solution.pi.toString());
+            System.out.println(ttprun.solution.z.stream()
+                    .map(x -> x ? 1 : 0)
+                    .collect(Collectors.toList())
+                    .toString()
+            );
             // log results into text file
             try {
                 File file = new File(outputFile);
