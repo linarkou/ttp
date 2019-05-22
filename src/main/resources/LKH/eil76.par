@@ -1,3 +1,0 @@
-RUNS = 1
-PROBLEM_FILE = /Users/linarkou/Google Drive/Master_Thesis/implementation/TTP-Master-Thesis/src/main/resources/TSP/eil76.tsp
-OUTPUT_TOUR_FILE = src/main/resources/TSP/tours/eil76_$.tour

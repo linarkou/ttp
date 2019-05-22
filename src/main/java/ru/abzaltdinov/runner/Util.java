@@ -1,8 +1,9 @@
 package ru.abzaltdinov.runner;
 
-import ru.abzaltdinov.model.ttp.AbstractThiefProblem;
-import ru.abzaltdinov.model.ttp.BiObjectiveThiefProblem;
+import ru.abzaltdinov.model.ttp.AbstractTTPInstance;
+import ru.abzaltdinov.model.ttp.TTP1Instance;
 import ru.abzaltdinov.model.ttp.solution.TTPSolution;
+import ru.abzaltdinov.util.ConfigHelper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * This class reads a problem into the object class.
+ * Readers / writers
  */
 public abstract class Util {
 
@@ -39,9 +40,7 @@ public abstract class Util {
                     .map(v -> v ? "1" : "0")
                     .collect(Collectors.joining(" "));
 
-            String objectives = TTPSolution.objectives.stream()
-                    .map(o -> String.format("%.16f", o))
-                    .collect(Collectors.joining(";"));
+            String objectives = String.format("%.16f", TTPSolution.objective);
 
             // write the variables
             writer.write(String.join(";",
@@ -56,11 +55,19 @@ public abstract class Util {
 
     public static void writeStatistics(String folder, String filename, Map<String, List<TTPSolution>> solutions) throws IOException {
         BufferedWriter writer = createBufferedWriter(folder, filename);
+        writer.write(String.join(";",
+                "Instance",
+                "Algorithm",
+                "mean",
+                "stdDev",
+                "max",
+                "min"));
+        writer.newLine();
         Function<Double, String> doubleFormatter = doubleValue -> String.format("%.16f", doubleValue);
         for (Map.Entry<String, List<TTPSolution>> entry : solutions.entrySet()) {
             String name = entry.getKey();
             List<Double> objectives = entry.getValue().stream()
-                    .map(s -> s.singleObjective)
+                    .map(s -> s.objective)
                     .collect(Collectors.toList());
             Double min = Statistics.min(objectives);
             Double max = Statistics.max(objectives);
@@ -76,15 +83,7 @@ public abstract class Util {
         }
         writer.close();
     }
-
-
-    public static void writeSolutions(String outputFolder, String teamName, AbstractThiefProblem problem, List<TTPSolution> TTPSolutions) throws IOException {
-
-        int numberOfSolutions = Competition.numberOfSolutions(problem);
-        if (TTPSolutions.size() > numberOfSolutions) {
-            System.out.println(String.format("WARNING: Finally the ru.linarkou.competition allows only %s TTPSolutions to be submitted. " +
-                    "Your algorithm found %s TTPSolutions.", numberOfSolutions, TTPSolutions.size()));
-        }
+    public static void writeSolutions(String outputFolder, String teamName, AbstractTTPInstance problem, List<TTPSolution> TTPSolutions) throws IOException {
 
         BufferedWriter varBw = Files.newBufferedWriter(Paths.get(outputFolder,
                 String.format("%s_%s.x", teamName, problem.name)));
@@ -109,12 +108,9 @@ public abstract class Util {
             varBw.write("\n");
 
             // write into the objective file
-            String objectivesStr = "";
-            for (Double objective : TTPSolution.objectives) {
-                objectivesStr = String.format("%s %.16f", objectivesStr, objective);
-            }
+            String objectiveStr = String.format("%.16f", TTPSolution.objective);
 
-            objBw.write(objectivesStr + "\n");
+            objBw.write(objectiveStr + "\n");
 
         }
 
@@ -146,12 +142,18 @@ public abstract class Util {
     }
 
 
-    public static BiObjectiveThiefProblem readProblem(InputStream is) throws IOException {
+    public static TTP1Instance readProblem(String fileName) throws IOException {
 
-        BiObjectiveThiefProblem problem = new BiObjectiveThiefProblem();
+        TTP1Instance problem = new TTP1Instance();
 
-        Reader reader = new InputStreamReader(is);
-        BufferedReader br = new BufferedReader(reader);
+        //this.name = fileName;
+        String[] sp = fileName.split("/", 2);
+        problem.name = sp[1];
+
+        String ttpData = ConfigHelper.getProperty("ttpdata");
+
+        File ttpFile = new File(ttpData+fileName);
+        BufferedReader br = new BufferedReader(new FileReader(ttpFile));
 
         String line = br.readLine();
         while (line != null) {
@@ -188,7 +190,6 @@ public abstract class Util {
                 }
 
             } else if (line.contains("ITEMS SECTION")) {
-
                 for (int i = 0; i < problem.numOfItems; i++) {
                     line = br.readLine();
                     String[] a = line.split("\\s+");
@@ -196,14 +197,13 @@ public abstract class Util {
                     problem.weight[i] = Double.valueOf(a[2].trim());
                     problem.cityOfItem[i] = Integer.valueOf(a[3].trim()) - 1;
                 }
-
             }
             line = br.readLine();
         }
 
+        problem.initialize();
         br.close();
 
-        //problem.initialize();
         return problem;
     }
 
@@ -211,4 +211,38 @@ public abstract class Util {
         return Files.newBufferedWriter(Paths.get(folder, fileName));
     }
 
+
+
+    public static String getTTPInstanceName(String tspInstanceName, Integer itemsFactor,
+                                            String correlatedWeights, Integer capacityCategory) {
+
+        int firstNumericIndex = tspInstanceName.length() - 1;
+        while (Character.isDigit(tspInstanceName.charAt(firstNumericIndex))) {
+            firstNumericIndex--;
+        }
+        firstNumericIndex++;
+        Integer numOfCities = Integer.valueOf(tspInstanceName.substring(firstNumericIndex));
+        Integer numOfItems = (numOfCities - 1) * itemsFactor;
+        String instanceName = String.format("%s_n%s_%s_%02d.ttp", tspInstanceName, numOfItems, correlatedWeights, capacityCategory);
+        return instanceName;
+    }
+
+    public static List<String> getAllTTPInstanceNames(String tspInstanceName) {
+        List<String> ttpInstances = new ArrayList<>();
+        String ttpFolderName = String.format("src/main/resources/TTP-original-instances/%s-ttp", tspInstanceName);
+        File folder = new File(ttpFolderName);
+        if (!folder.exists()) {
+            throw new RuntimeException("Can't find folder " + folder.getAbsolutePath());
+        }
+        for (final File fileEntry : folder.listFiles()) {
+            if (!fileEntry.isDirectory()) {
+                ttpInstances.add(fileEntry.getName());
+            }
+        }
+        return ttpInstances;
+    }
+
+    public static boolean equals(double d1, double d2) {
+        return Math.abs(d1 - d2) < 1e-6;
+    }
 }

@@ -1,8 +1,5 @@
 package ru.abzaltdinov.algorithms;
 
-import ru.abzaltdinov.model.ttp.AbstractThiefProblem;
-import ru.abzaltdinov.model.ttp.solution.TTPSolution;
-
 import java.util.List;
 
 public abstract class PackingAlgorithm implements Algorithm {

@@ -1,9 +1,7 @@
 package ru.abzaltdinov.algorithms;
 
-import ru.abzaltdinov.model.ttp.AbstractThiefProblem;
+import ru.abzaltdinov.model.ttp.TTP1Instance;
 import ru.abzaltdinov.model.ttp.solution.TTPSolution;
-
-import java.util.List;
 
 public interface Algorithm {
 
@@ -12,7 +10,7 @@ public interface Algorithm {
      * @param problem traveling thief problem instance
      * @return A non-dominated set of solutions
      */
-    List<TTPSolution> solve(AbstractThiefProblem problem);
+    TTPSolution solve(TTP1Instance problem);
 
     /**
      *

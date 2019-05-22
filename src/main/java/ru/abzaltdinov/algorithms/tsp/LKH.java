@@ -1,6 +1,6 @@
 package ru.abzaltdinov.algorithms.tsp;
 
-import ru.abzaltdinov.model.tsp.TravellingSalesmanProblem;
+import ru.abzaltdinov.model.tsp.TSPInstance;
 import ru.abzaltdinov.model.tsp.solution.TSPSolution;
 import ru.abzaltdinov.util.BashExecutor;
 import ru.abzaltdinov.util.Parameters;
@@ -14,7 +14,7 @@ import static ru.abzaltdinov.util.Parameters.*;
 
 public class LKH {
 
-    public TSPSolution getBestTour(TravellingSalesmanProblem tsp) {
+    public TSPSolution getBestTour(TSPInstance tsp) {
         File bestTourFile = getBestTourFile(tsp.name);
 
         if (bestTourFile == null) {  //if TSP not already solved
@@ -25,7 +25,7 @@ public class LKH {
         return tsp.evaluate(tour);
     }
 
-    public List<TSPSolution> getTours(TravellingSalesmanProblem tsp) {
+    public List<TSPSolution> getTours(TSPInstance tsp) {
         File[] allTourFiles = getAllTourFiles(tsp.name);
 
         if (allTourFiles.length == 0) {  //if TSP not already solved
@@ -42,7 +42,7 @@ public class LKH {
         return tours;
     }
 
-    private List<Integer> readTour(File tourFile) {
+    public List<Integer> readTour(File tourFile) {
         List<Integer> result = new ArrayList<>();
         try (FileReader fr = new FileReader(tourFile)) {
             BufferedReader br = new BufferedReader(fr);
@@ -61,7 +61,7 @@ public class LKH {
         return result;
     }
 
-    private void runLKH(String problemName) {
+    public void runLKH(String problemName) {
         try {
             File LKHparams = generateLKHParametersFile(problemName);
             BashExecutor.exec(PATH_LKH, LKHparams.getAbsolutePath(), true);
@@ -77,17 +77,10 @@ public class LKH {
         return foundFiles;
     }
 
-    private File getBestTourFile(String problemName) {
-        File[] allTourFiles = getAllTourFiles(problemName);
-        Integer minTourLength = Integer.MAX_VALUE;
-        File bestTour = null;
-        for (File tourFile : allTourFiles) {
-            Integer tourLength = Integer.valueOf(tourFile.getName().split("[_.]")[1]);
-            if (tourLength < minTourLength) {
-                bestTour = tourFile;
-            }
-        }
-        return bestTour;
+    public File getBestTourFile(String problemName) {
+        File toursDir = new File(PATH_TSP_TOURS_ABSOLUTE);
+        File[] allTourFiles = toursDir.listFiles((dir, name) -> name.startsWith(problemName));
+        return allTourFiles.length == 0 ? null : allTourFiles[0];
     }
 
     private File generateLKHParametersFile(String problemName) throws Exception {
@@ -107,7 +100,7 @@ public class LKH {
                     String problemFileName = String.format(lkhProps.getProperty(param), PATH_RESOURCES_TSP + "/" + problemName);
                     lkhParamsWriter.println(String.format("%s = %s", param, problemFileName));
                     break;
-                case "OUTPUT_TOUR_FILE":
+                case "TOUR_FILE":
                     String outputFileName = String.format(lkhProps.getProperty(param), PATH_TSP_TOURS_RELATIVE + "/" + problemName);
                     lkhParamsWriter.println(String.format("%s = %s", param, outputFileName));
                     break;
