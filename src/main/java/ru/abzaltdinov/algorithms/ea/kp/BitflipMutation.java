@@ -1,6 +1,5 @@
 package ru.abzaltdinov.algorithms.ea.kp;
 
-import ru.abzaltdinov.algorithms.ea.LocalSearch;
 import ru.abzaltdinov.algorithms.ea.MutationOperator;
 import ru.abzaltdinov.model.Pair;
 import ru.abzaltdinov.model.ttp.AbstractTTPInstance;
@@ -24,10 +23,13 @@ public class BitflipMutation extends MutationOperator<Integer, List<Boolean>> {
         List<Boolean> packingPlan = new ArrayList<>(solution.z);
 
         if (Math.random() < getProbability()) {
-            int item = new Random().nextInt(packingPlan.size());
-            packingPlan.set(item, !packingPlan.get(item));
-
-            return new Pair<>(item, packingPlan);
+            while (true) {
+                int item = new Random().nextInt(packingPlan.size());
+                packingPlan.set(item, !packingPlan.get(item));
+                if (!(packingPlan.get(item) && ttp.weight[item] + solution.weigthOfItems > ttp.maxWeight)) {
+                    return new Pair<>(item, packingPlan);
+                }
+            }
         } else {
             return new Pair<>(null, packingPlan);
         }

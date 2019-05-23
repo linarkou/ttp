@@ -1,5 +1,7 @@
 package ru.abzaltdinov.model.ttp.solution;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -24,13 +26,26 @@ public class TTPSolution implements Comparable<TTPSolution> {
 
     public double weigthOfItems;
 
+    public Integer[] weightAtCity;
+    public Integer[] weightAccumAtCity;
+
     public TTPSolution(List<Integer> pi, List<Boolean> z) {
         this.pi = pi;
         this.z = z;
     }
 
     public TTPSolution() {
+    }
 
+    public TTPSolution(TTPSolution other) {
+        this.pi = new ArrayList<>(other.pi);
+        this.z = new ArrayList<>(other.z);
+        this.time = other.time;
+        this.profit = other.profit;
+        this.objective = other.objective;
+        this.weigthOfItems = other.weigthOfItems;
+        this.weightAtCity = Arrays.copyOf(other.weightAtCity, pi.size());
+        this.weightAccumAtCity = Arrays.copyOf(other.weightAccumAtCity, pi.size());
     }
 
     @Override

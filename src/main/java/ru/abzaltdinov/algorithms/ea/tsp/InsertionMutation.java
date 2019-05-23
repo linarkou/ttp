@@ -7,7 +7,7 @@ import ru.abzaltdinov.model.ttp.solution.TTPSolution;
 
 import java.util.*;
 
-public class InsertionMutation extends MutationOperator<Integer, List<Integer>> {
+public class InsertionMutation extends MutationOperator<Integer, TTPSolution> {
 
     private AbstractTTPInstance ttp;
 
@@ -17,11 +17,11 @@ public class InsertionMutation extends MutationOperator<Integer, List<Integer>> 
     }
 
     @Override
-    public Pair<Integer, List<Integer>> mutate(TTPSolution solution) {
+    public Pair<Integer, TTPSolution> mutate(TTPSolution solution) {
         List<Integer> tour = new ArrayList<>(solution.pi);
 
         if (Math.random() > getProbability()) {
-            return new Pair<>(null, tour);
+            return new Pair<>(null, solution);
         }
 
         int n = tour.size();
@@ -53,10 +53,12 @@ public class InsertionMutation extends MutationOperator<Integer, List<Integer>> 
         tour.set(cityIndex, nearestCity);
         tour.set(nearestCityIndex, city);
 
+        TTPSolution newSolution = ttp.evaluate(tour, new ArrayList<>(solution.z));
+
         if (cityIndex < nearestCityIndex) {
-            return new Pair<>(cityIndex, tour);
+            return new Pair<>(cityIndex, newSolution);
         } else {
-            return new Pair<>(nearestCityIndex, tour);
+            return new Pair<>(nearestCityIndex, newSolution);
         }
     }
 }

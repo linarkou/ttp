@@ -17,15 +17,16 @@ import java.util.stream.Collectors;
 public class Runner {
 
     static final ClassLoader LOADER = Runner.class.getClassLoader();
-    static final Integer NUM_OF_ITERATIONS = 25000;
+    static final Integer NUM_OF_ITERATIONS = 30000;
     // initialize your algorithm
-    static double TOUR_MUTATION_PROBABILITY = 0.9;
-    static double PACK_PLAN_MUTATION_PROBABILITY = 0.9;
+    static double TOUR_MUTATION_PROBABILITY = 0.1;
+    static double TOUR_MUTATION_PROBABILITY_2 = 0.7;
+    static double PACK_PLAN_MUTATION_PROBABILITY = 1.0;
 
     public static void main(String[] args) throws IOException {
 
         if (args.length < 2) {
-            args = new String[]{"bier127_n1260_bounded-strongly-corr_03.ttp", "MyAlgo"};
+            args = new String[]{"nrw1379_n4134_uncorr_03.ttp", "MyAlgo"};
         }
 
         String[] spl = args[0].split("_", 2);
@@ -37,7 +38,8 @@ public class Runner {
         final String algoName = args[1];
 
         // output file
-        final String outputFile = "./output/" + algoName + ".csv";
+        final String outputFile = String.format("%s%st%.2fp%.2f%s",
+                "./output/", algoName, TOUR_MUTATION_PROBABILITY, PACK_PLAN_MUTATION_PROBABILITY, ".csv");
 
         // runtime limit
         long runtimeLimit = 600;
@@ -62,11 +64,11 @@ public class Runner {
                 break;
 
             case "MyAlgo":
-                algorithm = new MyOnePlusOneEA(PACK_PLAN_MUTATION_PROBABILITY, TOUR_MUTATION_PROBABILITY, NUM_OF_ITERATIONS);
+                algorithm = new MyOnePlusOneEA(PACK_PLAN_MUTATION_PROBABILITY, TOUR_MUTATION_PROBABILITY, TOUR_MUTATION_PROBABILITY_2, NUM_OF_ITERATIONS);
                 break;
 
             default:
-                algorithm = new MyOnePlusOneEA(PACK_PLAN_MUTATION_PROBABILITY, TOUR_MUTATION_PROBABILITY, NUM_OF_ITERATIONS);
+                algorithm = new MyOnePlusOneEA(PACK_PLAN_MUTATION_PROBABILITY, TOUR_MUTATION_PROBABILITY, TOUR_MUTATION_PROBABILITY_2, NUM_OF_ITERATIONS);
                 break;
         }
         // runnable class
@@ -113,12 +115,12 @@ public class Runner {
 
             // print to console
             System.out.println(ttprun.resultLine);
-            System.out.println(ttprun.solution.pi.toString());
-            System.out.println(ttprun.solution.z.stream()
-                    .map(x -> x ? 1 : 0)
-                    .collect(Collectors.toList())
-                    .toString()
-            );
+//            System.out.println(ttprun.solution.pi.toString());
+//            System.out.println(ttprun.solution.z.stream()
+//                    .map(x -> x ? 1 : 0)
+//                    .collect(Collectors.toList())
+//                    .toString()
+//            );
             // log results into text file
             try {
                 File file = new File(outputFile);

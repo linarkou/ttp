@@ -152,6 +152,12 @@ public abstract class AbstractTTPInstance {
         // attributes in the beginning of the tour
         double weight = 0;
 
+        Integer[] weightAtCity = new Integer[this.numOfCities];
+        Integer[] weightAccumAtCity = new Integer[this.numOfCities];
+        for (int i = 0; i < this.numOfCities; ++i) {
+            weightAtCity[i] = 0;
+            weightAccumAtCity[i] = 0;
+        }
         // iterate over all possible cities
         for (int i = 0; i < this.numOfCities; i++) {
 
@@ -166,8 +172,12 @@ public abstract class AbstractTTPInstance {
                     // update the current weight and profit
                     weight += this.weight[j];
                     profit += this.profit[j];
+                    weightAtCity[i] += (int) this.weight[j];
                 }
 
+            }
+            if (i != 0) {
+                weightAccumAtCity[i] = weightAccumAtCity[i - 1] + weightAtCity[i];
             }
 
             // if the maximum capacity constraint is reached
@@ -200,6 +210,8 @@ public abstract class AbstractTTPInstance {
         s.profit = profit;
         s.objective = profit - this.R * time;
         s.weigthOfItems = weight;
+        s.weightAtCity = weightAtCity;
+        s.weightAccumAtCity = weightAccumAtCity;
 
         return s;
     }

@@ -63,7 +63,7 @@ public class EqualAndBetterItemsLocalSearch implements LocalSearch {
 
         }
         if (improved) {
-            return ttp.evaluate(tour, packingPlan, true);
+            return ttp.evaluate(tour, packingPlan);
         } else {
             return solution;
         }

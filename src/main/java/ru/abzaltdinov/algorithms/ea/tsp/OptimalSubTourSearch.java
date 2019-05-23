@@ -142,7 +142,11 @@ public class OptimalSubTourSearch {
         newSolution.time = solution.time + bestTime - initialTime;
         newSolution.objective = newSolution.profit - ttp.R * newSolution.time;
 
-        return newSolution;
+        if (newSolution.objective > solution.objective) {
+            return newSolution;
+        } else {
+            return solution;
+        }
     }
 
     private void swap(Integer[] elements, int i, int j) {
