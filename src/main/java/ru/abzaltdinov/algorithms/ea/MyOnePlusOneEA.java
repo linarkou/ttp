@@ -56,12 +56,13 @@ public class MyOnePlusOneEA implements Algorithm {
         }
         int iterationsWithoutImprovements = 0;
         int iterWhenImprove = maxIterations - 1;
+        boolean useTourSearch = true;
         while (iterationsWithoutImprovements < maxIterations) {
             Pair<Integer, List<Boolean>> mutatedPackPlan = bitflipMutation.mutate(solution);
             TTPSolution newSolution = new TTPSolution(solution.pi, mutatedPackPlan.getSecond());
             Pair<Integer, TTPSolution> mutatedTour = insertionMutation[mutator].mutate(newSolution);
             newSolution = mutatedTour.getSecond();
-            if (mutatedTour.getFirst() != null) {
+            if (mutatedTour.getFirst() != null && useTourSearch) {
                 newSolution = optimalSubTourSearch.improve(newSolution, mutatedTour.getFirst());
             }
             if (mutatedPackPlan.getFirst() != null) {
@@ -87,12 +88,20 @@ public class MyOnePlusOneEA implements Algorithm {
                     }
                     else if (mutator == 0) {
                         mutator = 1;
+                        if (problem.numOfCities > 1000) {
+                            useTourSearch = false;
+                        }
                         iterationsWithoutImprovements = 0;
-                        System.out.println("Changed! " + solution.objective);
+                        System.out.println("Found with 1st mutation! " + solution.objective);
                     }
                 }
             }
             if (Thread.currentThread().isInterrupted()) {
+                if (problem.numOfItems < 1e+4) {
+                    solution = equalAndBetterItemsLocalSearch.improve(solution);
+                } else {
+                    solution = equalItemsLocalSearch.improve(solution);
+                }
                 break;
             }
 //            System.out.println(solution.objective);

@@ -19,7 +19,7 @@ public class Runner {
     static final ClassLoader LOADER = Runner.class.getClassLoader();
     static final Integer NUM_OF_ITERATIONS = 30000;
     // initialize your algorithm
-    static double TOUR_MUTATION_PROBABILITY = 0.1;
+    static double TOUR_MUTATION_PROBABILITY = 0.7;
     static double TOUR_MUTATION_PROBABILITY_2 = 0.7;
     static double PACK_PLAN_MUTATION_PROBABILITY = 1.0;
 
@@ -38,8 +38,7 @@ public class Runner {
         final String algoName = args[1];
 
         // output file
-        final String outputFile = String.format("%s%st%.2fp%.2f%s",
-                "./output/", algoName, TOUR_MUTATION_PROBABILITY, PACK_PLAN_MUTATION_PROBABILITY, ".csv");
+        final String outputFile = "./output/" + algoName + "-2" + ".csv";
 
         // runtime limit
         long runtimeLimit = 600;
