@@ -1,4 +1,4 @@
-##Travelling Thief Problem
+## Travelling Thief Problem
 This is my Master's thesis in computer science at ITMO University for solving [Travelling Thief Problem](https://cs.adelaide.edu.au/~zbyszek/Papers/TTP.pdf).
 
 I've suggested some local search operators that improved [CS2SA algorithm](https://github.com/yafrani/ttplab).
