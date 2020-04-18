@@ -19,7 +19,6 @@ docs/build
 submissions/**/*.x
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
